@@ -1,8 +1,8 @@
 package view.abstractions;
 
-import shared.abstractions.UserCollection;
+import shared.entites.abstractions.EntityCollection;
 
 public interface CollectionPresenter {
 
-    public void sendCollection(UserCollection collection);
+    public void sendCollection(EntityCollection collection);
 }

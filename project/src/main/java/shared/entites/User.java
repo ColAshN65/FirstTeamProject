@@ -1,6 +1,8 @@
-package shared;
+package shared.entites;
 
-public class User {
+import shared.entites.abstractions.Entity;
+
+public class User extends Entity{
 
     private String name;
     private String password;
