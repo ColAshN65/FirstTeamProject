@@ -7,6 +7,7 @@
 - В этом документе описываются API модулей, не их реализация.
 - Помним, что один класс может реализовать несколько интерфейсов. Так же помним про остальные принципы SOLID.
 - Помним так же и про принцип Dependency Invertion.
+- Каждый функциональный блок должен осуществлять логирование через соответствующий интерфейс. 
 
 
 # Архитектура
@@ -53,7 +54,7 @@ classDiagram
   }
 
   class CollectionPresenter {
-    +sendCollection(UserCollection users)
+    +sendCollection(EntityCollection collection)
   }
 ```
 
@@ -67,8 +68,8 @@ classDiagram
 ```mermaid
 classDiagram
 
-  class UsersReader {
-    +UserCollection readUsers()
+  class EntityReader {
+    +EntityCollection readEntities()
   }
 ```
 
@@ -88,24 +89,48 @@ ___Важно!___
 ```mermaid
 classDiagram
 
-  note for PasswordHashSorter "Экзотическая сортировка для доп задания 1"
+  note for UserSorter "Должно быть реализовано 2 сортировки:
+  -Обычная, использующая Entity.compareTo()
+  -Альтернативная, выполняющая условие доп задания 1.
+  Для этого разрешено использовать компоратор."
 
   class UserSorter{
-    +UserCollection sortUsers(UserCollection users)
-  }
-
-  class PasswordHashSorter{
-    +UserCollection sortUsersByPasswordHash(UserCollection users)
+    +EntityCollection sortEntities(UserCollection users)
   }
 ```
 
 ## Shared
-> В этом модуле представлены объекты, использующиеся повсеместно во всех модулях.
+> В этом модуле представлены объекты, использующиеся повсеместно во всех модулях.H
 
 Этот модуль должен содержать классы:
 ```mermaid
+---
+title: Исходя из общих требований, 
+  для каждого наследника Entity необходимо реализовать
+  сравнение по всем полям. 
+  Сортировать стоит в порядке, указанном на этой диаграме.
+---
 classDiagram
-  note for User "Исходя из общих требований, необходимо реализовать Comparable по всем трем полям."
+
+  note for Entity "Абстрактный класс, 
+  который должен реализовать 
+  сравнение объектов разных типов,
+   а так же предоставить абстракцию
+    для сравнения объектов одного типа."
+
+  class Entity {
+    int compareTo(Entity other)
+  }
+
+  class Bus {
+    +int number
+    +String model
+    +int mileage
+
+    int getNumber()
+    String getModel()
+    int getMildage()
+  }
 
   class User {
     +String name
@@ -118,25 +143,59 @@ classDiagram
     String getEmail()
     int getAge()
   }
+
+  class Car{
+    +int enginePower
+    +String model
+    +LocalDate releaseDate
+
+    int getEnginePower()
+    String getModel()
+    LocalDate getReleaseDate()
+  }
 ```
 
 Этот модуль должен содержать реализации интерфейсов:
 ```mermaid
 classDiagram
-  note for UserCollection "Звездочка для доп задания 3
-  Так же необходимо соблюсти иммутабельность коллекции в методе getUsersList()"
 
-  class UserBuilder{
-    addName(String Name)
-    addPasswordHash(Strin passwordHash)
-    add
-    User build()
+  note for EntityBuilder "Для каждого наследника Entity должна быть своя реализация билдера."
+
+  class EntityBuilder{
+    Entity build()
+  }
+  
+  note for EntityCollection "Звездочка для доп задания 3
+  Так же необходимо соблюсти иммутабельность 
+  коллекции в методе getEntitiesList()"
+
+  class EntityCollection{
+    +Iterable~Entity~ getEntities()
+    +List~Entity~ getEntitiesList()
   }
 
-  class UserCollection{
-    +Iterable~User~ getUsers()
-    +List~User~ getUsersList()
+```
+
+### Logging
+> Этот подмодуль отвечает за логирование приложения.
+
+Данный подмодуль должен содержать реализации-декораторы интерфейса Logger и основную реализацию этого интерфейса, которая должна записывать логи в файл.
+```mermaid
+classDiagram
+
+  class Logger{
+    logInfo(String log)
+    logWarning(String log)
+    logFatal(String log)
   }
+```
+Каждый лог должен быть в следующем формате:
+`[Уровень серьезности][Модуль] Сообщение`
+Например:
+```
+[Info][Model] Сортировка выполнена
+[Fatal][View] Выброшено необработаное исключение
+[Warning][Controller] Данные введены неправильно
 ```
 
 ## Tests
