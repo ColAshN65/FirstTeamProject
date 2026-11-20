@@ -23,5 +23,6 @@
 hs_err_pid*
 replay_pid*
 
+/project/test/
 /project/src/main/java/test/
 /project/target/
