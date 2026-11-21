@@ -171,7 +171,8 @@ classDiagram
   
   note for EntityCollection "Звездочка для доп задания 3
   Так же необходимо соблюсти иммутабельность 
-  коллекции в методе getEntitiesList()"
+  коллекции в методе getEntitiesList()
+  Реализация должна поддерживать generic."
 
   class EntityCollection{
     +Iterable~Entity~ getEntities()
