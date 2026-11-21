@@ -1,4 +1,6 @@
-package shared.entites.abstractions;
+package shared.entites;
+
+import shared.entites.abstractions.Entity;
 
 public class Bus extends Entity{
 
