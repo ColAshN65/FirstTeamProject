@@ -39,6 +39,10 @@ graph LR
 
 ## View
 > В данном модуле осуществляется отображение информации пользователю. 
+
+__Точкой входа данного модуля являются интерфейсы ErrorPresenter и CollectionPresenter.
+Точки выхода у интерфейса нет.__
+
 Представление может меняться в зависимости от полученных данных.
 
 Данный модуль должен иметь 2 интерфейса:
@@ -64,39 +68,64 @@ classDiagram
 Будь то ввод с клавиатуры, чтение файла и т.д.
 Данный модуль отвечает за целостность данных, которые попадают в модель.
 
-
 Данный модуль должен иметь реализации интерфейсов:
 ```mermaid
 classDiagram
 
   class EntityReader {
+    <<interface>>
     +EntityCollection readEntities()
   }
+
+
 ```
 
 ## Model
-> В данном модуле осуществляется непосредственно сортировка.
+> В данном модуле осуществляется взаимодействие с данными.
 Основная логика, которая должна выполняться эффективно.
-Модель получает проверенные данные.
 
-___Важно!___ 
-Сортировка должна быть реализована по всем полям.
+__Эндпоинты данного модуля:__
+- класс SorterBuilder
+- класс EntitySorter
 
-Можно реализовать комплексную или выборочную сортировку, дополнительное API нужно будет согласовать с исполнителем контроллера.
+__Инициализация наследника EntitySorter должна проводиться только через билдер.__
+Билдер необходим, так как алгоритм сортировки должен быть один, а способов сравнения 2.
+Задача билдера - подставить нужный EntityComporator в EntitySorter.
 
-Данный модуль должен содержать класс:
+По окончанию сортировки
 
-Так же данный модуль должен содержать реализацию интерфейсов:
+Классы модуля:
 ```mermaid
 classDiagram
 
-  note for UserSorter "Должно быть реализовано 2 сортировки:
-  -Обычная, использующая Entity.compareTo()
-  -Альтернативная, выполняющая условие доп задания 1.
-  Для этого разрешено использовать компоратор."
+  EntityComporator <|.. DefaultComporator
+  EntityComporator <|.. AlternativeComporator
+  EntitySorter *-- EntityComporator
+  SorterBuilder --> EntityComporator
+  SorterBuilder --> EntitySorter
 
-  class UserSorter{
-    +EntityCollection sortEntities(UserCollection users)
+  class EntitySorter{
+    <<interface>>
+    +EntityComporator сomporator;
+
+    EntityCollection sortEntities(UserCollection users)
+  }
+
+  class SorterBuilder{
+    setDefaultComporator()
+    setAlternativeComporatot()
+    EntitySorter build()
+  }
+
+  class EntityComporator{
+    <<interface>>
+    int compare(Entity first, Entity second)
+  }
+  class DefaultComporator{
+    int compare(Entity first, Entity second)
+  }
+  class AlternativeComporator{
+    int compare(Entity first, Entity second)
   }
 ```
 
@@ -105,6 +134,10 @@ classDiagram
 
 ### Entities
 > В этом подмодуле представлены сущности приложения.
+
+Экземпляры Entity должны быть инициализированы исключительно через соответствующий Builder.
+Абстрактный класс Entity должен реализовать Comparable\<Entity>. В нем сравнивается название типа.
+Каждый наследник Entity должен переопределить реализацию Comparable\<Entity>. В нем вызвать базовую реализацию метода compareTo, в случае если она вернула 0, произвести сравнение по всем полям.
 
 Этот модуль должен содержать классы:
 ```mermaid
@@ -116,14 +149,22 @@ title: Исходя из общих требований,
 ---
 classDiagram
 
-  note for Entity "Абстрактный класс, 
-  который должен реализовать 
-  сравнение объектов разных типов,
-   а так же предоставить абстракцию
-    для сравнения объектов одного типа."
+  Entity <|.. Bus
+  Entity <|.. User
+  Entity <|.. Car
+
+  Bus --> BusBuilder
+  User --> UserBuilder
+  Car --> CarBuilder
 
   class Entity {
+    <<abstarct>>
     int compareTo(Entity other)
+  }
+
+  class EntityCollection~T extends Entity~{
+    +Iterable~T~ getEntities()
+    +List~T~ getEntitiesList()
   }
 
   class Bus {
@@ -133,7 +174,14 @@ classDiagram
 
     int getNumber()
     String getModel()
-    int getMildage()
+    int getMilage()
+  }
+
+  class BusBuilder{
+    setNumber(int number)
+    setModel(string model)
+    setMileage(int mileage)
+    Bus build()
   }
 
   class User {
@@ -148,6 +196,14 @@ classDiagram
     int getAge()
   }
 
+  class UserBuilder{
+    setName(String name)
+    setPassword(String password)
+    setEmail(String Email)
+    setAge(int age)
+    User build()
+  }
+
   class Car{
     +int enginePower
     +String model
@@ -157,42 +213,54 @@ classDiagram
     String getModel()
     LocalDate getReleaseDate()
   }
-```
 
-Этот модуль должен содержать реализации интерфейсов:
-```mermaid
-classDiagram
-
-  note for EntityBuilder "Для каждого наследника Entity должна быть своя реализация билдера."
-
-  class EntityBuilder{
-    Entity build()
+  class CarBuilder{
+    setEnginePower(int enginePower)
+    setModel(string model)
+    setReleaseDate(int releaseDate)
+    Car build()
   }
-  
-  note for EntityCollection "Звездочка для доп задания 3
-  Так же необходимо соблюсти иммутабельность 
-  коллекции в методе getEntitiesList()
-  Реализация должна поддерживать generic."
-
-  class EntityCollection{
-    +Iterable~Entity~ getEntities()
-    +List~Entity~ getEntitiesList()
-  }
-
 ```
 
 ### Logging
 > Этот подмодуль отвечает за логирование приложения.
 
-Данный подмодуль должен содержать реализации-декораторы интерфейса Logger и основную реализацию этого интерфейса, которая должна записывать логи в файл.
+__Каждый модуль с помощью DI будет получать соответствующий ModuleLoggerDecorator__
+Задача декоратора - добавить к логу, которую он получает от модуля, название модуля.
+
+Эта спорная часть архитектуры. Требуется обсуждение с исполнителем.
+
+Классы подмодуля:
 ```mermaid
 classDiagram
 
+  Logger <|.. ModuleLoggerDecorator
+  Logger <|.. FileLogger
+
+  ModuleLoggerDecorator --> FileLogger
+
   class Logger{
+    <<interface>>
     logInfo(String log)
     logWarning(String log)
     logFatal(String log)
   }
+
+  class ModuleLoggerDecorator{
+    +Logger logger
+    +String modulaName
+
+    logInfo(String log)
+    logWarning(String log)
+    logFatal(String log)
+  }
+
+  class FileLogger{
+    logInfo(String log)
+    logWarning(String log)
+    logFatal(String log)
+  }
+
 ```
 Каждый лог должен быть в следующем формате:
 `[Уровень серьезности][Модуль] Сообщение`
