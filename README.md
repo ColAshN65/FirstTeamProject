@@ -39,20 +39,15 @@ graph LR
 
 ## View
 > В данном модуле осуществляется отображение информации пользователю. 
-
-__Точкой входа данного модуля являются интерфейсы ErrorPresenter и CollectionPresenter.
-Точки выхода у интерфейса нет.__
-
-Представление может меняться в зависимости от полученных данных.
-
-Данный модуль должен иметь 2 интерфейса:
-  
+Классы модуля:
 ```mermaid
 classDiagram
 
   note for ErrorPresenter "Предоставить текст ошибки пользователю"
   note for CollectionPresenter "Предоставить пользователю отсортированную коллекцию
   Для доп задания 2 необходимо записывать результат в файл."
+  note for MatchesPresenter "Предоставить количество совпадений 
+  пользователю по доп заданию 4"
 
   class ErrorPresenter {
     +sendError(String header, String messageText)
@@ -61,6 +56,10 @@ classDiagram
   class CollectionPresenter {
     +sendCollection(EntityCollection collection)
   }
+
+  class MatchesPresenter {
+    +sendMatches(int matches)
+  }
 ```
 
 ## Controller
@@ -68,15 +67,55 @@ classDiagram
 Будь то ввод с клавиатуры, чтение файла и т.д.
 Данный модуль отвечает за целостность данных, которые попадают в модель.
 
-Данный модуль должен иметь реализации интерфейсов:
+### FileReader
+> В данном модуле осуществляется чтение данных из файлов.
+
+__Эндпоинты данного подмодуля:__
+- FileReader
+
+__FileReader__ 
+Построчно читает файл. В зависимости от типа данных,
+которые нужно прочитать, он использует соответствующий EntityRowReader.
+
+__EntityRowReader__
+Каждая реализация должна конвертировать строку в экземпляр класса через соответсвующий билдер.
+
+Классы подмлуля:
 ```mermaid
 classDiagram
+  EntityRowReader~T extends Entity~ <|.. UserReader
+  EntityRowReader~T extends Entity~ <|.. BusReader
+  EntityRowReader~T extends Entity~ <|.. CarReader
+  FileReader~T extends Entity~ --* EntityRowReader~T extends Entity~
 
-  class EntityReader {
-    <<interface>>
-    +EntityCollection readEntities()
+  class FileReader~T extends Entity~{
+    +EntityRowReader~T~ rowReader
+    
+    EntityCollection read(String path)
   }
 
+  class EntityRowReader~T extends Entity~{
+    <<interface>>
+    T readRow(String row)
+  }
+
+  class UserReader{
+    +UserBuilder builder
+
+    User readRow(String row)
+  }
+
+  class BusReader{
+    +BusBuilder builder
+
+    Bus readRow(String row)
+  }
+
+  class CarReader{
+    +CarBuilder builder
+
+    Car readRow(String row)
+  }
 
 ```
 
