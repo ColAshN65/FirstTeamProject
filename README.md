@@ -87,10 +87,14 @@ classDiagram
 __Эндпоинты данного модуля:__
 - класс SorterBuilder
 - класс EntitySorter
+- класс EntityFinder
 
 __Инициализация наследника EntitySorter должна проводиться только через билдер.__
 Билдер необходим, так как алгоритм сортировки должен быть один, а способов сравнения 2.
 Задача билдера - подставить нужный EntityComporator в EntitySorter.
+
+__EntitiFinder__
+Должен найти все повторения Entity в коллекции. Использует исключительно DefaultComporatorю
 
 По окончанию сортировки
 
@@ -101,14 +105,22 @@ classDiagram
   EntityComporator <|.. DefaultComporator
   EntityComporator <|.. AlternativeComporator
   EntitySorter *-- EntityComporator
+  EntityFinder *-- DefaultComporator
   SorterBuilder --> EntityComporator
   SorterBuilder --> EntitySorter
+
+  class EntityFinder{
+    + DefaultEntityComporator comporator
+
+    int findEntity(EntityCollection collection, Entity target)
+
+  }
 
   class EntitySorter{
     <<interface>>
     +EntityComporator сomporator;
 
-    EntityCollection sortEntities(UserCollection users)
+    EntityCollection sortEntities(EntityCollection collection)
   }
 
   class SorterBuilder{
