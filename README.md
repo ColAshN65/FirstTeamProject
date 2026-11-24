@@ -94,7 +94,7 @@ __Инициализация наследника EntitySorter должна пр
 Задача билдера - подставить нужный EntityComporator в EntitySorter.
 
 __EntitiFinder__
-Должен найти все повторения Entity в коллекции. Использует исключительно DefaultComporatorю
+Должен найти все повторения Entity в коллекции. Использует исключительно DefaultComporator.
 
 По окончанию сортировки
 
@@ -108,6 +108,7 @@ classDiagram
   EntityFinder *-- DefaultComporator
   SorterBuilder --> EntityComporator
   SorterBuilder --> EntitySorter
+  EntitySorter --> XXXSorter
 
   class EntityFinder{
     + DefaultEntityComporator comporator
@@ -117,9 +118,17 @@ classDiagram
   }
 
   class EntitySorter{
-    <<interface>>
+    <<abstract>>
     +EntityComporator сomporator;
+    +CollectionPresenter presenter;
 
+    EntityCollection sortEntities(EntityCollection collection)
+  }
+
+
+  note for XXXSorter "Конкретная реализация алгоритма сортировки.
+  Название зависит от выбранного алгоритма."
+  class XXXSorter{
     EntityCollection sortEntities(EntityCollection collection)
   }
 
