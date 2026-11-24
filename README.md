@@ -96,6 +96,12 @@ __Инициализация наследника EntitySorter должна пр
 __EntitiFinder__
 Должен найти все повторения Entity в коллекции. Использует исключительно DefaultComporator.
 
+__DefaultComporator__
+Он просто вызывает compareTo() у Entity.
+
+__AlternativeComporator__
+Должен выполнять условия доп задания 1.
+
 По окончанию сортировки
 
 Классы модуля:
