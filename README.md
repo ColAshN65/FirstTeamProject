@@ -149,17 +149,24 @@ classDiagram
 
   EntityComporator <|.. DefaultComporator
   EntityComporator <|.. AlternativeComporator
+  EntityFinder <|.. DefaultEntityFinder
   EntitySorter *-- EntityComporator
-  EntityFinder *-- DefaultComporator
+  DefaultEntityFinder *-- DefaultComporator
   SorterBuilder --> EntityComporator
   SorterBuilder --> EntitySorter
   EntitySorter --> XXXSorter
 
   class EntityFinder{
+    <<abstract>>
+
+    int findEntity(EntityCollection collection, Entity target)
+  }
+
+  class DefaultEntityFinder{
+    <<abstract>>
     + DefaultEntityComporator comporator
 
     int findEntity(EntityCollection collection, Entity target)
-
   }
 
   class EntitySorter{
