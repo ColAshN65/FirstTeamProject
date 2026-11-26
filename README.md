@@ -313,26 +313,29 @@ classDiagram
 
   ModuleLoggerDecorator --> FileLogger
 
+  Logger --> Level
+  FileLogger --> Level
+  ModuleLoggerDecorator --> Level
+
   class Logger{
     <<interface>>
-    logInfo(String log)
-    logWarning(String log)
-    logFatal(String log)
+    log(Level level, String log)
+  }
+
+  class Level{
+
+    String toString()
   }
 
   class ModuleLoggerDecorator{
     +Logger logger
     +String modulaName
 
-    logInfo(String log)
-    logWarning(String log)
-    logFatal(String log)
+    log(Level level, String log)
   }
 
   class FileLogger{
-    logInfo(String log)
-    logWarning(String log)
-    logFatal(String log)
+    log(Level level, String log)
   }
 
 ```
