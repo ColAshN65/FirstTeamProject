@@ -222,16 +222,24 @@ classDiagram
   Bus --> BusBuilder
   User --> UserBuilder
   Car --> CarBuilder
+  
+  EntityCollection --> EntityCollectionFactory
 
   class Entity {
     <<abstarct>>
     int compareTo(Entity other)
   }
 
-  class EntityCollection~T extends Entity~{
-    +Iterable~T~ getEntities()
-    +List~T~ getEntitiesList()
+  class EntityCollection{
+    Iterable~Entity~ getEntities()
+    List~Entity~ getEntitiesList()
   }
+
+  class EntityCollectionFactory{
+    EntityCollection createEntityCollection(List<Entity> entities);
+  }
+
+  class EntityCollectionFactory
 
   class Bus {
     +int number
